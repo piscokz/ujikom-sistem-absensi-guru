@@ -42,7 +42,7 @@ class SekolahUserSeeder extends Seeder
         ]);
 
         // 2. Role dasar
-        $roles = ['kurikulum', 'guru_piket', 'guru_mapel', 'super_admin'];
+        $roles = ['kurikulum', 'guru_piket', 'super_admin'];
         foreach ($roles as $role) {
             User::create([
                 'sekolah_id' => $sekolah->id,

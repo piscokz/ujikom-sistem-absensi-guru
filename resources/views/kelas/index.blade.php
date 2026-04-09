@@ -12,8 +12,8 @@
             <div class="flex justify-end">
                 <a href="{{ route('guru-piket.kelas.create') }}"
                     class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                        stroke-width="2" stroke="currentColor" class="w-4 h-4 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                        stroke="currentColor" class="w-4 h-4 text-white">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                     </svg>
                     Tambah Kelas
@@ -26,32 +26,31 @@
                     class="flex items-center justify-between bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-100 border border-green-300 dark:border-green-700 px-4 py-3 rounded-lg shadow-sm"
                     role="alert">
                     <span class="font-medium">{{ session('success') }}</span>
-                    <button @click="show = false" class="text-lg font-bold hover:text-green-900 dark:hover:text-green-200">&times;</button>
+                    <button @click="show = false"
+                        class="text-lg font-bold hover:text-green-900 dark:hover:text-green-200">&times;</button>
                 </div>
             @endif
 
             {{-- Tampilan Mobile (Card View) --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-4">
                 @forelse ($daftarKelas as $kelas)
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow hover:shadow-md transition">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-100">
-                                    {{ $kelas->nama_kelas }}
-                                </h3>
-                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                                    {{ $kelas->user->email }}
-                                </p>
-                            </div>
+                    <div
+                        class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow hover:shadow-lg hover:scale-105 transition-all duration-300 border border-slate-200 dark:border-slate-700">
+                        <div class="mb-3">
+                            <h3 class="text-lg font-semibold text-slate-800 dark:text-white">
+                                {{ $kelas->nama_kelas }}
+                            </h3>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                                {{ $kelas->user->email }}
+                            </p>
                         </div>
-
-                        <div class="mt-4 flex justify-end gap-3 text-sm">
+                        <div class="flex justify-end gap-2 mt-4">
                             <a href="{{ route('guru-piket.kelas.jadwal.index', ['kelas' => $kelas->id]) }}"
-                                class="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200 rounded-md hover:bg-green-200 dark:hover:bg-green-700 transition">
+                                class="px-3 py-1.5 bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-200 rounded-md hover:bg-green-200 dark:hover:bg-green-700 transition text-sm">
                                 Detail Jadwal
                             </a>
                             <a href="{{ route('guru-piket.kelas.edit', $kelas->id) }}"
-                                class="inline-flex items-center px-3 py-1.5 bg-indigo-100 text-indigo-700 dark:bg-indigo-800 dark:text-indigo-200 rounded-md hover:bg-indigo-200 dark:hover:bg-indigo-700 transition">
+                                class="px-3 py-1.5 bg-indigo-100 text-indigo-700 dark:bg-indigo-800 dark:text-indigo-200 rounded-md hover:bg-indigo-200 dark:hover:bg-indigo-700 transition text-sm">
                                 Edit
                             </a>
                             <form action="{{ route('guru-piket.kelas.destroy', $kelas->id) }}" method="POST"
@@ -59,7 +58,7 @@
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
-                                    class="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-200 rounded-md hover:bg-red-200 dark:hover:bg-red-700 transition">
+                                    class="px-3 py-1.5 bg-red-100 text-red-700 dark:bg-red-800 dark:text-red-200 rounded-md hover:bg-red-200 dark:hover:bg-red-700 transition text-sm">
                                     Hapus
                                 </button>
                             </form>
@@ -79,9 +78,12 @@
                         <thead class="bg-slate-50 dark:bg-slate-900/50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">No</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Kelas</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Email</th>
-                                <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Aksi</th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Kelas
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase">Email
+                                </th>
+                                <th class="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase">Aksi
+                                </th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
@@ -98,11 +100,12 @@
                                     </td>
                                     <td class="px-6 py-4 text-right text-sm font-medium">
                                         <a href="{{ route('guru-piket.kelas.jadwal.index', ['kelas' => $kelas->id]) }}"
-                                            class="text-green-600 hover:text-green-800 dark:text-green-400">Detail Jadwal</a>
+                                            class="text-green-600 hover:text-green-800 dark:text-green-400">Detail
+                                            Jadwal</a>
                                         <a href="{{ route('guru-piket.kelas.edit', $kelas->id) }}"
                                             class="ml-4 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400">Edit</a>
-                                        <form action="{{ route('guru-piket.kelas.destroy', $kelas->id) }}" method="POST"
-                                            class="inline"
+                                        <form action="{{ route('guru-piket.kelas.destroy', $kelas->id) }}"
+                                            method="POST" class="inline"
                                             onsubmit="return confirm('Apakah Anda yakin ingin menghapus kelas ini?');">
                                             @csrf
                                             @method('DELETE')

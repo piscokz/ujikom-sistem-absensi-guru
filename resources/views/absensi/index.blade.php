@@ -92,7 +92,7 @@
             <div class="bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-6">
                 <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-300 mb-4">
                     <div>Menampilkan {{ $absensis->total() }} entri. Halaman {{ $absensis->currentPage() }} dari {{ $absensis->lastPage() }}.</div>
-                    <div class="font-semibold text-gray-800 dark:text-gray-100">Total Jam Kerja: {{ $total_jam ?? 0 }} Pertemuan</div>
+                    <div class="font-semibold text-gray-800 dark:text-gray-100">Total Jam Kerja: {{ $total_jam ?? 0 }} jam</div>
                 </div>
 
                 <!-- Desktop Table -->

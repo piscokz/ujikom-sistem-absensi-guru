@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Guru;
+use App\Models\SistemOtomatis;
 use App\Models\Absensi;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\AbsensiExport;
-use Illuminate\Support\Facades\Http;
 
 
 class DashboardController extends Controller
@@ -67,19 +67,9 @@ class DashboardController extends Controller
             ->where('status', 'tidak_hadir')
             ->count();
 
-        // Data libur untuk guru_piket
-        $isHoliday = false;
-        $holidays = [];
-        if (auth()->user()->role === 'guru_piket') {
-            $response = Http::get('https://libur.deno.dev/api/today');
-            if ($response->successful()) {
-                $data = $response->json();
-                $isHoliday = $data['is_holiday'];
-                $holidays = $data['holiday_list'];
-            }
-        }
+        $sistemOtomatis = SistemOtomatis::current();
 
-        return view('dashboard.index', compact('stats', 'totalHadir', 'totalTidakHadir', 'start', 'end', 'filter', 'isHoliday', 'holidays'));
+        return view('dashboard.index', compact('stats', 'totalHadir', 'totalTidakHadir', 'start', 'end', 'filter', 'sistemOtomatis'));
     }
 
     public function exportPdf(Request $request)

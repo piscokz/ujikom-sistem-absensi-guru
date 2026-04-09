@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\Absensi;
 use App\Models\JadwalDetail;
 use App\Models\TanggalMerah;
+use App\Models\SistemOtomatis;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -21,6 +22,20 @@ Schedule::call(function () {
     if (TanggalMerah::whereDate('tanggal', $today)->exists()) {
         Log::info("🛑 Hari ini ($today) adalah tanggal merah — task absensi dilewati.");
         echo "\033[33m🛑 Hari ini ($today) libur. Task absensi dilewati.\033[0m\n";
+        return;
+    }
+
+    // Cek apakah hari ini libur
+    if (TanggalMerah::whereDate('tanggal', $today)->exists()) {
+        Log::info("🛑 Hari ini ($today) adalah tanggal merah — task absensi dilewati.");
+        echo "\033[33m🛑 Hari ini ($today) libur. Task absensi dilewati.\033[0m\n";
+        return;
+    }
+
+    // Cek apakah sistem absensi otomatis sedang dimatikan
+    if (! SistemOtomatis::enabled()) {
+        Log::info("🛑 Sistem absensi otomatis dimatikan — task schedule dilewati.");
+        echo "\033[33m🛑 Sistem absensi otomatis dimatikan. Task absensi dilewati.\033[0m\n";
         return;
     }
 

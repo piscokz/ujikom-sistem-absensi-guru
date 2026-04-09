@@ -11,7 +11,9 @@ use App\Http\Controllers\GuruController;
 use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\GuruMapelController;
 use App\Http\Controllers\JadwalDetailController;
-use App\Http\Controllers\JamMapelController;use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\JamMapelController;
+use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\SistemOtomatisController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\AbsensiController;
@@ -53,7 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:guru_piket')->group(function () {
         Route::name('guru-piket.')->group(function () {
             Route::resource('libur', TanggalMerahController::class)->only(['index', 'store', 'destroy']);
-            
+
             Route::resource('kelas', KelasController::class);
             Route::resource('mapel', MapelController::class);
             Route::resource('guru', GuruController::class);
@@ -78,6 +80,14 @@ Route::middleware('auth')->group(function () {
             Route::get('absensi/export/pdf', [AbsensiController::class, 'exportPdf'])
                 ->name('absensi.export.pdf');
 
+            Route::resource('libur', TanggalMerahController::class)->only(['index', 'store', 'destroy']);
+
+            Route::get('sistem-otomatis', [SistemOtomatisController::class, 'index'])
+                ->name('sistem-otomatis.index');
+            Route::post('sistem-otomatis/enable', [SistemOtomatisController::class, 'enable'])
+                ->name('sistem-otomatis.enable');
+            Route::post('sistem-otomatis/disable', [SistemOtomatisController::class, 'disable'])
+                ->name('sistem-otomatis.disable');
 
             Route::get('/hadirkan-guru', [App\Http\Controllers\HadirkanGuruController::class, 'index'])
                 ->name('hadirkan.index');
