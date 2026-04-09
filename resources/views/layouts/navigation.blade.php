@@ -19,29 +19,31 @@
                     <!-- Navigation Links -->
                     <div class="hidden space-x-4 sm:-my-px sm:ms-8 sm:flex items-center justify-center flex-1">
 
-                        {{-- Guru Piket --}}
+                        {{-- Guru Piket dan kurikulum --}}
                         @if (auth()->user()->role === 'guru_piket' || auth()->user()->role === 'kurikulum')
                             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                                 {{ __('Dashboard') }}
                             </x-nav-link>
-                            <x-nav-link :href="route('guru-piket.kelas.index')" :active="request()->routeIs(['guru-piket.kelas.*', 'guru-piket.jadwal.*'])">
-                                {{ __('Kelas & Jadwal') }}
-                            </x-nav-link>
-                            <x-nav-link :href="route('guru-piket.mapel.index')" :active="request()->routeIs('guru-piket.mapel.*')">
-                                {{ __('Mapel') }}
-                            </x-nav-link>
-                            <x-nav-link :href="route('guru-piket.guru.index')" :active="request()->routeIs('guru-piket.guru*')">
-                                {{ __('Guru') }}
-                            </x-nav-link>
-                            <x-nav-link :href="route('guru-piket.shift.index')" :active="request()->routeIs('guru-piket.shift.*')">
-                                {{ __('Shift & Jam Mapel') }}
-                            </x-nav-link>
-                            <x-nav-link :href="route('guru-piket.absensi')" :active="request()->routeIs('guru-piket.absensi')">
-                                {{ __('Absensi Guru') }}
-                            </x-nav-link>
-                            <x-nav-link :href="route('guru-piket.sistem-otomatis.index')" :active="request()->routeIs('guru-piket.sistem-otomatis.index')">
-                                {{ __('Sistem Absensi Otomatis') }}
-                            </x-nav-link>
+                            @if (auth()->user()->role === 'guru_piket')
+                                <x-nav-link :href="route('guru-piket.kelas.index')" :active="request()->routeIs(['guru-piket.kelas.*', 'guru-piket.jadwal.*'])">
+                                    {{ __('Kelas & Jadwal') }}
+                                </x-nav-link>
+                                <x-nav-link :href="route('guru-piket.mapel.index')" :active="request()->routeIs('guru-piket.mapel.*')">
+                                    {{ __('Mapel') }}
+                                </x-nav-link>
+                                <x-nav-link :href="route('guru-piket.guru.index')" :active="request()->routeIs('guru-piket.guru*')">
+                                    {{ __('Guru') }}
+                                </x-nav-link>
+                                <x-nav-link :href="route('guru-piket.shift.index')" :active="request()->routeIs('guru-piket.shift.*')">
+                                    {{ __('Shift & Jam Mapel') }}
+                                </x-nav-link>
+                                <x-nav-link :href="route('guru-piket.absensi')" :active="request()->routeIs('guru-piket.absensi')">
+                                    {{ __('Absensi Guru') }}
+                                </x-nav-link>
+                                <x-nav-link :href="route('guru-piket.sistem-otomatis.index')" :active="request()->routeIs('guru-piket.sistem-otomatis.index')">
+                                    {{ __('Sistem Absensi Otomatis') }}
+                                </x-nav-link>
+                            @endif
                         @elseif (auth()->user()->role === 'kelas_siswa')
                             <x-nav-link :href="route('kelas-siswa.jadwal.index')" :active="request()->routeIs('kelas-siswa.jadwal.*')">
                                 {{ __('Jadwal Mapel') }}

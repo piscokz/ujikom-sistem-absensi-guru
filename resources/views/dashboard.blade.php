@@ -5,6 +5,7 @@
                 Dashboard
             </x-sidebar-item>
 
+            @if(auth()->user()->role !== 'kurikulum')
             <x-sidebar-item href="{{ route('guru.index') }}" :active="request()->routeIs('guru.*')" icon="users">
                 Data Guru
             </x-sidebar-item>
@@ -20,8 +21,10 @@
             <x-sidebar-item href="{{ route('kelas.index') }}" :active="request()->routeIs('kelas.*')" icon="building">
                 Kelas
             </x-sidebar-item>
+            @endif
         </x-sidebar-group>
 
+        @if(auth()->user()->role !== 'kurikulum')
         <x-sidebar-group title="Laporan">
             <x-sidebar-item href="{{ route('absensi.index') }}" :active="request()->routeIs('absensi.*')" icon="file-bar-chart">
                 Absensi
@@ -31,6 +34,7 @@
                 Jadwal
             </x-sidebar-item>
         </x-sidebar-group>
+        @endif
     </x-sidebar>
 
     <x-page-header title="Dashboard" description="Ringkasan sistem absensi guru">
@@ -64,6 +68,7 @@
             </x-card>
         </div>
 
+        @if(auth()->user()->role !== 'kurikulum')
         <!-- Quick Actions -->
         <div class="mt-8">
             <x-card header="Aksi Cepat">
@@ -92,5 +97,6 @@
                 </x-card-body>
             </x-card>
         </div>
+        @endif
     </div>
 </x-layout>

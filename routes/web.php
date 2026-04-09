@@ -46,8 +46,8 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:kurikulum')->group(function () {
         Route::name('kurikulum.')->group(function () {
             Route::get('/hal-kurikulum', function () {
-                return view('level.kurikulum.dashboard');
-            });
+                return view('dashboard');
+            })->name('dashboard');
         });
     });
 
