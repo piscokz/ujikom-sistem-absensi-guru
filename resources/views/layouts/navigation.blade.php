@@ -12,10 +12,10 @@
         </button>
     </div>
 
-    <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-black/50 sm:hidden transition-opacity duration-300" x-cloak></div>
+    <div x-show="sidebarOpen" style="display: none;" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-black/50 sm:hidden transition-opacity duration-300" x-cloak></div>
 
     <nav :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}"
-         class="fixed inset-y-0 left-0 z-40 w-64 px-4 py-6 overflow-y-auto transition duration-300 transform bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 sm:translate-x-0 flex flex-col shadow-lg pt-20 sm:pt-6">
+     class="-translate-x-full fixed inset-y-0 left-0 z-40 w-64 px-4 py-6 overflow-y-auto transition duration-300 transform bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 sm:translate-x-0 flex flex-col shadow-lg pt-20 sm:pt-6">
         
         <div class="absolute top-4 right-4 sm:hidden">
             <button @click="sidebarOpen = false" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
@@ -25,7 +25,8 @@
             </button>
         </div>
 
-        <div class="flex items-center justify-center mb-8 shrink-0">
+        
+        <div class="flex items-center justify-left ml-3 mb-8 shrink-0">
             <a href="{{ route('basecamp') }}" class="flex items-center hover:opacity-80 transition-opacity duration-200">
                 <x-application-logo class="block h-10 w-auto fill-current text-gray-800 dark:text-gray-200" />
                 <span class="ml-3 text-lg font-bold text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">

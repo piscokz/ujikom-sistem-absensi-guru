@@ -55,23 +55,133 @@ class GuruMapelController extends Controller
         return view('level.guru_mapel.scan_qr.index');
     }
 
+    // public function absen(Request $request)
+    // {
+    //     $token = $request->query('token');
+    //     $kelas_id = QrToken::where('token', $token)->value('kelas_id');
+    //     $jadwal_id = Jadwal::where('kelas_id', $kelas_id)->value('id');
+
+    //     if (!$token) {
+    //         return redirect()->route('guru-mapel.scan-qr.index')
+    //             ->with('error', 'Token QR tidak ditemukan.');
+    //     }
+
+    //     $qr = QrToken::where('token', $token)->first();
+    //     if (!$qr) {
+    //         return redirect()->route('guru-mapel.scan-qr.index')
+    //             ->with('error', 'Token QR tidak valid.');
+    //     }
+
+
+    //     $dateTime = Carbon::now('Asia/Jakarta')->locale('id');
+    //     $hari = $dateTime->dayName;
+    //     $waktu = $dateTime->format('H:i:s');
+
+    //     $guru = Guru::where('user_id', Auth::user()->id)->first();
+    //     if (!$guru) {
+    //         return redirect()->route('guru-mapel.scan-qr.index')
+    //             ->with('error', 'Data guru tidak ditemukan.');
+    //     }
+
+    //     // cari jadwal aktif (jam sekarang)
+    //     $jadwalAktif = JadwalDetail::where('hari', $hari)
+    //         ->where('guru_id', $guru->id)
+    //         ->whereHas('jamMapel', function ($q) use ($waktu) {
+    //             $q->where('jam_mulai', '<=', $waktu)
+    //                 ->where('jam_selesai', '>=', $waktu);
+    //         })
+    //         ->with(['jamMapel', 'mapel'])
+    //         ->first();
+
+    //     if (!$jadwalAktif) {
+    //         return redirect()->route('guru-mapel.scan-qr.index')
+    //             ->with('error', 'Tidak ada jadwal aktif untuk Anda saat ini.');
+    //     }
+
+    //     // ambil semua jadwal guru hari ini dengan mapel yang sama
+    //     $jadwalMapelHariIni = JadwalDetail::where('hari', $hari)
+    //         ->where('jadwal_id', $jadwal_id)
+    //         ->where('guru_id', $guru->id)
+    //         ->where('mapel_id', $jadwalAktif->mapel_id)
+    //         ->with('jamMapel')
+    //         ->get();
+
+    //     foreach ($jadwalMapelHariIni as $detail) {
+    //         Absensi::updateOrCreate(
+    //             [
+    //                 'guru_id' => $guru->id,
+    //                 'jadwal_detail_id' => $detail->id,
+    //             ],
+    //             [
+    //                 'qr_token_id' => $qr->id,
+    //                 'status' => 'hadir',
+    //                 'waktu_absen' => $dateTime,
+    //             ]
+    //         );
+    //     }
+
+    //     // hapus absensi "tidak_hadir" sebelumnya untuk mapel & guru ini di hari yang sama
+    //     Absensi::where('guru_id', $guru->id)
+    //         ->whereIn('jadwal_detail_id', $jadwalMapelHariIni->pluck('id'))
+    //         ->where('status', 'tidak_hadir')
+    //         ->whereDate('waktu_absen', Carbon::today('Asia/Jakarta'))
+    //         ->delete();
+
+    //     $mapel = $jadwalAktif->mapel->nama_mapel;
+    //     $jamAwal = $jadwalMapelHariIni->first()->jamMapel->nomor_jam ?? '-';
+    //     $jamAkhir = $jadwalMapelHariIni->last()->jamMapel->nomor_jam ?? '-';
+
+    //     return redirect()->route('guru-mapel.rekap-absensi')
+    //         ->with('success', "Absensi berhasil! Semua jam mapel {$mapel} hari ini (jam ke-{$jamAwal}–{$jamAkhir}) ditandai hadir.");
+    // }
+
     public function absen(Request $request)
     {
-        $token = $request->query('token');
-        $kelas_id = QrToken::where('token', $token)->value('kelas_id');
-        $jadwal_id = Jadwal::where('kelas_id', $kelas_id)->value('id');
+        // 1. Ambil token 
+        $token = $request->input('qr_token') ?? $request->query('token');
 
         if (!$token) {
             return redirect()->route('guru-mapel.scan-qr.index')
                 ->with('error', 'Token QR tidak ditemukan.');
         }
 
-        $qr = QrToken::where('token', $token)->first();
-        if (!$qr) {
+        // ==========================================
+        // 2. VALIDASI GEOFENCING (LOKASI KOORDINAT)
+        // ==========================================
+        if (!$request->filled('latitude') || !$request->filled('longitude')) {
             return redirect()->route('guru-mapel.scan-qr.index')
-                ->with('error', 'Token QR tidak valid.');
+                ->with('error', 'Gagal mendapatkan data lokasi (GPS). Pastikan izin akses lokasi diberikan.');
         }
 
+        $userLat = $request->latitude;
+        $userLng = $request->longitude;
+        $officeLat = env('OFFICE_LAT');
+        $officeLng = env('OFFICE_LNG');
+        $maxRadius = env('OFFICE_RADIUS', 50);
+
+        $distance = $this->calculateDistance($officeLat, $officeLng, $userLat, $userLng);
+
+        if ($distance > $maxRadius) {
+            return redirect()->route('guru-mapel.scan-qr.index')
+                ->with('error', 'Absen gagal: Anda berada di luar area sekolah. Jarak Anda: ' . round($distance) . ' meter.');
+        }
+        // ==========================================
+
+        // 3. VALIDASI TOKEN (PENGGABUNGAN LOGIKA VALIDATETOKEN)
+        $qr = QrToken::where('token', $token)->first();
+        if (!$qr) {
+            return redirect()->route('guru-mapel.scan-qr.index')->with('error', 'Token QR tidak valid.');
+        }
+
+        // CEK APAKAH TOKEN SUDAH KADALUARSA / SUDAH DIPAKAI
+        if (!$qr->isValid()) {
+            return redirect()->route('guru-mapel.scan-qr.index')
+                ->with('error', 'Token sudah kadaluarsa atau telah digunakan sebelumnya.');
+        }
+
+        // 4. PROSES ABSENSI
+        $kelas_id = $qr->kelas_id; // Menggunakan relasi langsung dari $qr
+        $jadwal_id = Jadwal::where('kelas_id', $kelas_id)->value('id');
 
         $dateTime = Carbon::now('Asia/Jakarta')->locale('id');
         $hari = $dateTime->dayName;
@@ -79,8 +189,7 @@ class GuruMapelController extends Controller
 
         $guru = Guru::where('user_id', Auth::user()->id)->first();
         if (!$guru) {
-            return redirect()->route('guru-mapel.scan-qr.index')
-                ->with('error', 'Data guru tidak ditemukan.');
+            return redirect()->route('guru-mapel.scan-qr.index')->with('error', 'Data guru tidak ditemukan.');
         }
 
         // cari jadwal aktif (jam sekarang)
@@ -94,8 +203,7 @@ class GuruMapelController extends Controller
             ->first();
 
         if (!$jadwalAktif) {
-            return redirect()->route('guru-mapel.scan-qr.index')
-                ->with('error', 'Tidak ada jadwal aktif untuk Anda saat ini.');
+            return redirect()->route('guru-mapel.scan-qr.index')->with('error', 'Tidak ada jadwal aktif untuk Anda saat ini.');
         }
 
         // ambil semua jadwal guru hari ini dengan mapel yang sama
@@ -120,103 +228,104 @@ class GuruMapelController extends Controller
             );
         }
 
-        // hapus absensi "tidak_hadir" sebelumnya untuk mapel & guru ini di hari yang sama
+        // hapus absensi "tidak_hadir" sebelumnya
         Absensi::where('guru_id', $guru->id)
             ->whereIn('jadwal_detail_id', $jadwalMapelHariIni->pluck('id'))
             ->where('status', 'tidak_hadir')
             ->whereDate('waktu_absen', Carbon::today('Asia/Jakarta'))
             ->delete();
 
+        // TANDAI TOKEN SUDAH DIPAKAI AGAR TIDAK BISA DISCAN ULANG (DARI VALIDATETOKEN)
+        $qr->used = true;
+        $qr->save();
+
         $mapel = $jadwalAktif->mapel->nama_mapel;
         $jamAwal = $jadwalMapelHariIni->first()->jamMapel->nomor_jam ?? '-';
         $jamAkhir = $jadwalMapelHariIni->last()->jamMapel->nomor_jam ?? '-';
 
         return redirect()->route('guru-mapel.rekap-absensi')
-            ->with('success', "Absensi berhasil! Semua jam mapel {$mapel} hari ini (jam ke-{$jamAwal}–{$jamAkhir}) ditandai hadir.");
+            ->with('success', "Absensi berhasil! Jam ke-{$jamAwal}–{$jamAkhir} ditandai hadir. Jarak: " . round($distance) . "m.");
     }
 
+    // public function validateToken($token)
+    // {
+    //     $user = Auth::user();
+    //     $guru = \App\Models\Guru::where('user_id', $user->id)->firstOrFail();
+    //     $now = Carbon::now('Asia/Jakarta');
 
+    //     $qr = QrToken::where('token', $token)
+    //         ->with(['kelas', 'jadwalDetail.mapel', 'jadwalDetail.jamMapel'])
+    //         ->first();
 
+    //     if (!$qr) {
+    //         return view('level.guru_mapel.scan_qr.result', [
+    //             'status' => 'error',
+    //             'message' => 'Token QR tidak ditemukan.'
+    //         ]);
+    //     }
 
-    public function validateToken($token)
-    {
-        $user = Auth::user();
-        $guru = \App\Models\Guru::where('user_id', $user->id)->firstOrFail();
-        $now = Carbon::now('Asia/Jakarta');
+    //     if (!$qr->isValid()) {
+    //         return view('level.guru_mapel.scan_qr.result', [
+    //             'status' => 'error',
+    //             'message' => 'Token sudah kadaluarsa atau telah digunakan.'
+    //         ]);
+    //     }
 
-        $qr = QrToken::where('token', $token)
-            ->with(['kelas', 'jadwalDetail.mapel', 'jadwalDetail.jamMapel'])
-            ->first();
+    //     $jadwalDetail = $qr->jadwalDetail;
+    //     $hari = $jadwalDetail->hari;
+    //     $mapelId = $jadwalDetail->mapel_id;
 
-        if (!$qr) {
-            return view('level.guru_mapel.scan_qr.result', [
-                'status' => 'error',
-                'message' => 'Token QR tidak ditemukan.'
-            ]);
-        }
+    //     // ambil semua jadwal berurutan dengan mapel & guru sama di hari yang sama
+    //     $semuaJam = JadwalDetail::where('hari', $hari)
+    //         ->where('guru_id', $guru->id)
+    //         ->where('mapel_id', $mapelId)
+    //         ->whereHas('jamMapel', function ($q) use ($jadwalDetail) {
+    //             $q->whereBetween('nomor_jam', [
+    //                 $jadwalDetail->jamMapel->nomor_jam,
+    //                 $jadwalDetail->jamMapel->nomor_jam + 1
+    //             ]);
+    //         })
+    //         ->get();
 
-        if (!$qr->isValid()) {
-            return view('level.guru_mapel.scan_qr.result', [
-                'status' => 'error',
-                'message' => 'Token sudah kadaluarsa atau telah digunakan.'
-            ]);
-        }
+    //     // filter hanya jadwal yang belum diabsen hari ini
+    //     $sudahAbsen = Absensi::where('guru_id', $guru->id)
+    //         ->whereDate('waktu_absen', $now->toDateString())
+    //         ->pluck('jadwal_detail_id')
+    //         ->toArray();
 
-        $jadwalDetail = $qr->jadwalDetail;
-        $hari = $jadwalDetail->hari;
-        $mapelId = $jadwalDetail->mapel_id;
+    //     $belumAbsen = $semuaJam->reject(fn($d) => in_array($d->id, $sudahAbsen));
 
-        // ambil semua jadwal berurutan dengan mapel & guru sama di hari yang sama
-        $semuaJam = JadwalDetail::where('hari', $hari)
-            ->where('guru_id', $guru->id)
-            ->where('mapel_id', $mapelId)
-            ->whereHas('jamMapel', function ($q) use ($jadwalDetail) {
-                $q->whereBetween('nomor_jam', [
-                    $jadwalDetail->jamMapel->nomor_jam,
-                    $jadwalDetail->jamMapel->nomor_jam + 1
-                ]);
-            })
-            ->get();
+    //     if ($belumAbsen->isEmpty()) {
+    //         return view('level.guru_mapel.scan_qr.result', [
+    //             'status' => 'error',
+    //             'message' => 'Anda sudah absen untuk jam ini.'
+    //         ]);
+    //     }
 
-        // filter hanya jadwal yang belum diabsen hari ini
-        $sudahAbsen = Absensi::where('guru_id', $guru->id)
-            ->whereDate('waktu_absen', $now->toDateString())
-            ->pluck('jadwal_detail_id')
-            ->toArray();
+    //     // catat absensi untuk semua jadwal berurutan yang belum diabsen
+    //     foreach ($belumAbsen as $detail) {
+    //         Absensi::create([
+    //             'guru_id' => $guru->id,
+    //             'jadwal_detail_id' => $detail->id,
+    //             'waktu_absen' => $now,
+    //             'qr_token_id' => $qr->id,
+    //             'status' => 'hadir',
+    //         ]);
+    //     }
 
-        $belumAbsen = $semuaJam->reject(fn($d) => in_array($d->id, $sudahAbsen));
+    //     // tandai token terpakai
+    //     $qr->used = true;
+    //     $qr->save();
 
-        if ($belumAbsen->isEmpty()) {
-            return view('level.guru_mapel.scan_qr.result', [
-                'status' => 'error',
-                'message' => 'Anda sudah absen untuk jam ini.'
-            ]);
-        }
-
-        // catat absensi untuk semua jadwal berurutan yang belum diabsen
-        foreach ($belumAbsen as $detail) {
-            Absensi::create([
-                'guru_id' => $guru->id,
-                'jadwal_detail_id' => $detail->id,
-                'waktu_absen' => $now,
-                'qr_token_id' => $qr->id,
-                'status' => 'hadir',
-            ]);
-        }
-
-        // tandai token terpakai
-        $qr->used = true;
-        $qr->save();
-
-        return view('level.guru_mapel.scan_qr.result', [
-            'status' => 'success',
-            'message' => 'Absensi berhasil direkam.',
-            'guru' => $guru,
-            'kelas' => $qr->kelas,
-            'mapel' => $qr->jadwalDetail->mapel,
-            'jam' => $belumAbsen->pluck('jamMapel.nomor_jam')->implode(', ')
-        ]);
-    }
+    //     return view('level.guru_mapel.scan_qr.result', [
+    //         'status' => 'success',
+    //         'message' => 'Absensi berhasil direkam.',
+    //         'guru' => $guru,
+    //         'kelas' => $qr->kelas,
+    //         'mapel' => $qr->jadwalDetail->mapel,
+    //         'jam' => $belumAbsen->pluck('jamMapel.nomor_jam')->implode(', ')
+    //     ]);
+    // }
 
 
     public function rekapAbsensi()
@@ -264,5 +373,25 @@ class GuruMapelController extends Controller
         })->sortBy('jam')->values();
 
         return view('level.guru_mapel.absensi.rekap', compact('guru', 'hari', 'rekap'));
+    }
+
+    /**
+     * Helper Function: Rumus Haversine untuk menghitung jarak dalam meter
+     * Tambahkan fungsi ini di bagian paling bawah sebelum kurung kurawal terakhir "}"
+     */
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371000; // Radius bumi dalam meter
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * asin(sqrt($a));
+
+        return $earthRadius * $c;
     }
 }

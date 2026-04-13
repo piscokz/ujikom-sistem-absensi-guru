@@ -107,7 +107,8 @@ Route::middleware('auth')->group(function () {
             // halaman tampilan scanner
             Route::get('/scan', [GuruMapelController::class, 'scanPage'])->name('scan-qr.index');
             // endpoint proses absensi
-            Route::get('/absen', [GuruMapelController::class, 'absen'])->name('absen');
+            // Route::get('/absen', [GuruMapelController::class, 'absen'])->name('absen');
+            Route::post('/absen', [GuruMapelController::class, 'absen'])->name('absen');
             Route::get('/codes/{token}', [GuruMapelController::class, 'validateToken'])->name('validate-token');
             Route::get('/rekap_absensi', [App\Http\Controllers\GuruMapelController::class, 'rekapAbsensi'])
                 ->name('rekap-absensi');
