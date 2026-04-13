@@ -1,262 +1,120 @@
-    <nav x-data="{ open: false }"
-        class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-lg">
-        <!-- Primary Navigation Menu -->
-        <div class="max-w-screen-2xl mx-auto px-2 sm:px-4 lg:px-6">
-            <div class="flex justify-between h-16">
-                <div class="flex">
-                    <!-- Logo + Teks -->
-                    <div class="shrink-0 flex items-center">
-                        <a href="{{ route('basecamp') }}"
-                            class="flex items-center hover:opacity-80 transition-opacity duration-200">
-                            <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
-                            <span
-                                class="ml-2 text-lg font-semibold text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
-                                Sistem Absensi Guru
-                            </span>
-                        </a>
-                    </div>
+<div x-data="{ sidebarOpen: false }" class="relative">
 
-                    <!-- Navigation Links -->
-                    <div class="hidden space-x-4 sm:-my-px sm:ms-8 sm:flex items-center justify-center flex-1">
+    <div class="flex items-center justify-between w-full h-16 px-4 bg-white border-b border-gray-200 sm:hidden dark:bg-gray-800 dark:border-gray-700 shadow-sm fixed top-0 z-20">
+        <div class="flex items-center">
+            <x-application-logo class="block h-8 w-auto fill-current text-gray-800 dark:text-gray-200" />
+            <span class="ml-2 font-semibold text-gray-800 dark:text-gray-200">Sistem Absensi</span>
+        </div>
+        <button @click="sidebarOpen = true" class="p-2 text-gray-500 focus:outline-none hover:text-gray-700 hover:bg-gray-100 rounded-md dark:text-gray-400 dark:hover:text-white dark:hover:bg-gray-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
 
-                        {{-- Guru Piket dan kurikulum --}}
-                        @if (auth()->user()->role === 'guru_piket' || auth()->user()->role === 'kurikulum')
-                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                                {{ __('Dashboard') }}
-                            </x-nav-link>
-                            @if (auth()->user()->role === 'guru_piket')
-                                <x-nav-link :href="route('guru-piket.kelas.index')" :active="request()->routeIs(['guru-piket.kelas.*', 'guru-piket.jadwal.*'])">
-                                    {{ __('Kelas & Jadwal') }}
-                                </x-nav-link>
-                                <x-nav-link :href="route('guru-piket.mapel.index')" :active="request()->routeIs('guru-piket.mapel.*')">
-                                    {{ __('Mapel') }}
-                                </x-nav-link>
-                                <x-nav-link :href="route('guru-piket.guru.index')" :active="request()->routeIs('guru-piket.guru*')">
-                                    {{ __('Guru') }}
-                                </x-nav-link>
-                                <x-nav-link :href="route('guru-piket.shift.index')" :active="request()->routeIs('guru-piket.shift.*')">
-                                    {{ __('Shift & Jam Mapel') }}
-                                </x-nav-link>
-                                <x-nav-link :href="route('guru-piket.absensi')" :active="request()->routeIs('guru-piket.absensi')">
-                                    {{ __('Absensi Guru') }}
-                                </x-nav-link>
-                                <x-nav-link :href="route('guru-piket.sistem-otomatis.index')" :active="request()->routeIs('guru-piket.sistem-otomatis.index')">
-                                    {{ __('Sistem Absensi Otomatis') }}
-                                </x-nav-link>
-                            @endif
-                        @elseif (auth()->user()->role === 'kelas_siswa')
-                            <x-nav-link :href="route('kelas-siswa.jadwal.index')" :active="request()->routeIs('kelas-siswa.jadwal.*')">
-                                {{ __('Jadwal Mapel') }}
-                            </x-nav-link>
-                            <x-nav-link :href="route('kelas-siswa.qr-generate.index')" :active="request()->routeIs('kelas-siswa.qr-generate.*')">
-                                {{ __('Generate QR') }}
-                            </x-nav-link>
-                        @elseif (auth()->user()->role === 'guru_mapel')
-                            <x-nav-link :href="route('guru-mapel.jadwal.index')" :active="request()->routeIs('guru-mapel.jadwal.*')">
-                                {{ __('Jadwal Mengajar') }}
-                            </x-nav-link>
-                            <x-nav-link :href="route('guru-mapel.rekap-absensi')" :active="request()->routeIs('guru-mapel.rekap-absensi')">
-                                {{ __('Rekap Absensi') }}
-                            </x-nav-link>
-                            <x-nav-link :href="route('guru-mapel.scan-qr.index')" :active="request()->routeIs('guru-mapel.scan-qr.*')">
-                                {{ __('Absen') }}
-                            </x-nav-link>
-                        @endif
+    <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-30 bg-black/50 sm:hidden transition-opacity duration-300" x-cloak></div>
 
-                        {{-- guru-mapel.jadwal.index --}}
-                    </div>
-                </div>
-
-                <!-- Settings Dropdown -->
-                <div class="hidden sm:flex sm:items-center sm:ms-4">
-                    <x-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            <button
-                                class="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm leading-4 font-medium rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ease-in-out transform hover:scale-105 hover:-translate-y-0.5">
-                                <div class="flex items-center">
-                                    <svg class="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
-                                        </path>
-                                    </svg>
-                                    <span class="truncate max-w-32">{{ Auth::user()->name }}</span>
-                                </div>
-
-                                <div class="ms-2 transition-transform duration-200" :class="{ 'rotate-180': open }">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd"
-                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </button>
-                        </x-slot>
-
-                        <x-slot name="content">
-                            <x-dropdown-link :href="route('profile.edit')"
-                                class="flex items-center hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-150">
-                                <svg class="w-4 h-4 mr-3 text-gray-500 dark:text-gray-400" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                {{ __('Profile') }}
-                            </x-dropdown-link>
-
-                            <!-- Authentication -->
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-
-                                <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();"
-                                    class="flex items-center hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-150">
-                                    <svg class="w-4 h-4 mr-3 text-red-500" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                                        </path>
-                                    </svg>
-                                    {{ __('Log Out') }}
-                                </x-dropdown-link>
-                            </form>
-                        </x-slot>
-                    </x-dropdown>
-                </div>
-
-                <!-- Hamburger -->
-                <div class="-me-2 flex items-center sm:hidden">
-                    <button @click="open = ! open"
-                        class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 focus:text-gray-500 transition-all duration-200 ease-in-out transform hover:scale-105">
-                        <svg class="h-6 w-6 transition-transform duration-200" :class="{ 'rotate-90': open }"
-                            stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                            <path :class="{ 'hidden': open, 'inline-flex': !open }"
-                                class="inline-flex transition-opacity duration-200" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                            <path :class="{ 'hidden': !open, 'inline-flex': open }"
-                                class="hidden transition-opacity duration-200" stroke-linecap="round"
-                                stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
+    <nav :class="{'translate-x-0': sidebarOpen, '-translate-x-full': !sidebarOpen}"
+         class="fixed inset-y-0 left-0 z-40 w-64 px-4 py-6 overflow-y-auto transition duration-300 transform bg-white border-r border-gray-200 dark:bg-gray-800 dark:border-gray-700 sm:translate-x-0 flex flex-col shadow-lg pt-20 sm:pt-6">
+        
+        <div class="absolute top-4 right-4 sm:hidden">
+            <button @click="sidebarOpen = false" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
         </div>
 
-        <!-- Responsive Navigation Menu -->
-        <div :class="{ 'block': open, 'hidden': !open }"
-            class="hidden sm:hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 border-t border-gray-200 dark:border-gray-700 transition-all duration-300 ease-in-out overflow-hidden">
-            <div class="pt-2 pb-3 space-y-1 px-2" x-show="open" x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 transform translate-y-2"
-                x-transition:enter-end="opacity-100 transform translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 transform translate-y-0"
-                x-transition:leave-end="opacity-0 transform translate-y-2">
-                {{-- Guru Piket --}}
-                @if (auth()->user()->role === 'guru_piket' || auth()->user()->role === 'kurikulum')
-                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')"
-                        class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:translate-x-1">
-                        {{ __('Dashboard') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('guru-piket.kelas.index')" :active="request()->routeIs(['guru-piket.kelas.*', 'guru-piket.jadwal.*'])"
-                        class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:translate-x-1">
+        <div class="flex items-center justify-center mb-8 shrink-0">
+            <a href="{{ route('basecamp') }}" class="flex items-center hover:opacity-80 transition-opacity duration-200">
+                <x-application-logo class="block h-10 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                <span class="ml-3 text-lg font-bold text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200">
+                    Sistem Absensi
+                </span>
+            </a>
+        </div>
+
+        <div class="flex flex-col flex-1 space-y-1.5 mt-2">
+
+            {{-- Guru Piket dan kurikulum --}}
+            @if (auth()->user()->role === 'guru_piket' || auth()->user()->role === 'kurikulum')
+                <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('dashboard') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                    {{ __('Dashboard') }}
+                </a>
+                @if (auth()->user()->role === 'guru_piket')
+                    <a href="{{ route('guru-piket.kelas.index') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs(['guru-piket.kelas.*', 'guru-piket.jadwal.*']) ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                         {{ __('Kelas & Jadwal') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('guru-piket.mapel.index')" :active="request()->routeIs('guru-piket.mapel.*')"
-                        class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:translate-x-1">
+                    </a>
+                    <a href="{{ route('guru-piket.mapel.index') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('guru-piket.mapel.*') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                         {{ __('Mapel') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('guru-piket.guru.index')" :active="request()->routeIs('guru-piket.guru.*')"
-                        class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:translate-x-1">
+                    </a>
+                    <a href="{{ route('guru-piket.guru.index') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('guru-piket.guru*') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                         {{ __('Guru') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('guru-piket.shift.index')" :active="request()->routeIs(['guru-piket.shift.*', 'guru-piket.jam-mapel.*'])"
-                        class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:translate-x-1">
+                    </a>
+                    <a href="{{ route('guru-piket.shift.index') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('guru-piket.shift.*') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                         {{ __('Shift & Jam Mapel') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('guru-piket.absensi')" :active="request()->routeIs('guru-piket.absensi.index')"
-                        class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:translate-x-1">
+                    </a>
+                    <a href="{{ route('guru-piket.absensi') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('guru-piket.absensi') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                         {{ __('Absensi Guru') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('guru-piket.sistem-otomatis.index')" :active="request()->routeIs('guru-piket.sistem-otomatis.index')"
-                        class="hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200 transform hover:translate-x-1">
+                    </a>
+                    <a href="{{ route('guru-piket.sistem-otomatis.index') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('guru-piket.sistem-otomatis.index') ? 'bg-green-50 text-green-700 dark:bg-green-900/50 dark:text-green-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                         {{ __('Sistem Absensi Otomatis') }}
-                    </x-responsive-nav-link>
-                @elseif (auth()->user()->role === 'kelas_siswa')
-                    <x-responsive-nav-link :href="route('kelas-siswa.jadwal.index')" :active="request()->routeIs('kelas-siswa.jadwal.*')"
-                        class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:translate-x-1">
-                        {{ __('Jadwal Mapel') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('kelas-siswa.qr-generate.index')" :active="request()->routeIs('kelas-siswa.qr-generate.*')"
-                        class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:translate-x-1">
-                        {{ __('Generate QR') }}
-                    </x-responsive-nav-link>
-                @elseif (auth()->user()->role === 'guru_mapel')
-                    <x-responsive-nav-link :href="route('guru-mapel.jadwal.index')" :active="request()->routeIs('guru-mapel.jadwal.*')"
-                        class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:translate-x-1">
-                        {{ __('Jadwal Mengajar') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('guru-mapel.rekap-absensi')" :active="request()->routeIs('guru-mapel.rekap-absensi')"
-                        class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:translate-x-1">
-                        {{ __('Rekap Absensi') }}
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('guru-mapel.scan-qr.index')" :active="request()->routeIs('guru-mapel.scan-qr.*')"
-                        class="hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:translate-x-1">
-                        {{ __('Absen') }}
-                    </x-responsive-nav-link>
+                    </a>
                 @endif
-            </div>
 
-            <!-- Responsive Settings Options -->
-            <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800">
-                <div class="px-2 py-2">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <svg class="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <div class="font-medium text-base text-gray-800 dark:text-gray-200">
-                                {{ Auth::user()->name }}</div>
-                            <div class="font-medium text-sm text-gray-500 dark:text-gray-400">
-                                {{ Auth::user()->email }}</div>
-                        </div>
-                    </div>
+            {{-- Kelas Siswa --}}
+            @elseif (auth()->user()->role === 'kelas_siswa')
+                <a href="{{ route('kelas-siswa.jadwal.index') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('kelas-siswa.jadwal.*') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                    {{ __('Jadwal Mapel') }}
+                </a>
+                <a href="{{ route('kelas-siswa.qr-generate.index') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('kelas-siswa.qr-generate.*') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                    {{ __('Generate QR') }}
+                </a>
+
+            {{-- Guru Mapel --}}
+            @elseif (auth()->user()->role === 'guru_mapel')
+                <a href="{{ route('guru-mapel.jadwal.index') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('guru-mapel.jadwal.*') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                    {{ __('Jadwal Mengajar') }}
+                </a>
+                <a href="{{ route('guru-mapel.rekap-absensi') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('guru-mapel.rekap-absensi') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                    {{ __('Rekap Absensi') }}
+                </a>
+                <a href="{{ route('guru-mapel.scan-qr.index') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('guru-mapel.scan-qr.*') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                    {{ __('Absen') }}
+                </a>
+            @endif
+        </div>
+
+        <div class="pt-4 pb-2 mt-6 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center px-4 mb-4">
+                <div class="flex-shrink-0">
+                    <svg class="w-8 h-8 p-1 bg-gray-100 rounded-full text-gray-500 dark:bg-gray-700 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
                 </div>
-
-                <div class="mt-3 space-y-1 px-2">
-                    <x-responsive-nav-link :href="route('profile.edit')"
-                        class="flex items-center hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-150">
-                        <svg class="w-4 h-4 mr-3 text-gray-500 dark:text-gray-400" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                        </svg>
-                        {{ __('Profile') }}
-                    </x-responsive-nav-link>
-
-                    <!-- Authentication -->
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-
-                        <x-responsive-nav-link :href="route('logout')"
-                            onclick="event.preventDefault();
-                                        this.closest('form').submit();"
-                            class="flex items-center hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-150">
-                            <svg class="w-4 h-4 mr-3 text-red-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                                </path>
-                            </svg>
-                            {{ __('Log Out') }}
-                        </x-responsive-nav-link>
-                    </form>
+                <div class="ml-3 overflow-hidden">
+                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{{ Auth::user()->name }}</p>
+                    <p class="text-xs font-medium text-gray-500 dark:text-gray-400 truncate">{{ Auth::user()->email }}</p>
                 </div>
             </div>
+
+            <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-sm font-medium text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 dark:text-gray-300 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                {{ __('Profile') }}
+            </a>
+
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" class="flex items-center px-4 py-2 mt-1 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 dark:text-red-500 dark:hover:bg-red-900/20 transition-colors">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    {{ __('Log Out') }}
+                </a>
+            </form>
         </div>
     </nav>
+</div>
