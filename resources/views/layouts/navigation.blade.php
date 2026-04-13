@@ -58,7 +58,7 @@
                     <a href="{{ route('guru-piket.absensi') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('guru-piket.absensi') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                         {{ __('Absensi Guru') }}
                     </a>
-                    <a href="{{ route('guru-piket.sistem-otomatis.index') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('guru-piket.sistem-otomatis.index') ? 'bg-green-50 text-green-700 dark:bg-green-900/50 dark:text-green-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                    <a href="{{ route('guru-piket.sistem-otomatis.index') }}" class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-colors {{ request()->routeIs('guru-piket.sistem-otomatis.index') ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
                         {{ __('Sistem Absensi Otomatis') }}
                     </a>
                 @endif
