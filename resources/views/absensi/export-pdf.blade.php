@@ -1,32 +1,91 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>Laporan Absensi Guru</title>
     <style>
-        body { font-family: 'DejaVu Sans', sans-serif; font-size: 12px; margin: 20px; color: #333; }
-        h2, h4 { text-align: center; margin: 0; }
-        h4 { margin-bottom: 20px; color: #555; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #999; padding: 6px; text-align: center; font-size: 11px; }
-        th { background-color: #f3f4f6; }
-        .status-hadir { background: #dcfce7; color: #166534; }
-        .status-tidak { background: #fee2e2; color: #991b1b; }
-        footer { text-align: right; font-size: 10px; margin-top: 30px; color: #666; }
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            font-size: 12px;
+            margin: 20px;
+            color: #333;
+        }
+
+        h2,
+        h4 {
+            text-align: center;
+            margin: 0;
+        }
+
+        h4 {
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #999;
+            padding: 6px;
+            text-align: center;
+            font-size: 11px;
+        }
+
+        th {
+            background-color: #f3f4f6;
+        }
+
+        .status-hadir {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-tidak {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        footer {
+            text-align: right;
+            font-size: 10px;
+            margin-top: 30px;
+            color: #666;
+        }
     </style>
 </head>
+
 <body>
     <h2>Laporan Absensi Guru</h2>
-    <h4>
-        @if($guru)
+    {{-- <h4>
+        @if ($guru)
             Guru: {{ $guru->nama_guru }} <br>
         @endif
         Periode:
         {{ $tanggalDari ? \Carbon\Carbon::parse($tanggalDari)->translatedFormat('d M Y') : '-' }}
         semua {{ $tanggalSampai ? \Carbon\Carbon::parse($tanggalSampai)->translatedFormat('d M Y') : '-' }}
+    </h4> --}}
+    <h4>
+        @if ($guru)
+            Guru: {{ $guru->nama_guru }} <br>
+        @endif
+
+        Periode:
+        @if ($tanggalDari || $tanggalSampai)
+            {{ $tanggalDari ? \Carbon\Carbon::parse($tanggalDari)->translatedFormat('d M Y') : '-' }}
+            s/d
+            {{ $tanggalSampai ? \Carbon\Carbon::parse($tanggalSampai)->translatedFormat('d M Y') : '-' }}
+        @else
+            Semua
+        @endif
     </h4>
 
-    @if(isset($total_jam))
+    @if (isset($total_jam))
         <div style="margin-top:10px; margin-bottom:6px;">
             <strong>Jumlah Total Jam Kerja:</strong> {{ $total_jam }} Pertemuan
         </div>
@@ -45,7 +104,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($absensis as $index => $absen)
+            @foreach ($absensis as $index => $absen)
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $absen->guru->nama_guru ?? '-' }}</td>
@@ -69,4 +128,5 @@
         Dicetak pada {{ now()->translatedFormat('d M Y H:i') }}
     </footer>
 </body>
+
 </html>
